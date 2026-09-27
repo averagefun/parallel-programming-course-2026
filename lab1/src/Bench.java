@@ -2,6 +2,7 @@ import java.util.Arrays;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
 
 public final class Bench {
 
@@ -106,13 +107,21 @@ public final class Bench {
                 snapshot.count(), bucketTotal, snapshot.sum(), snapshot.min(), snapshot.max(),
                 snapshot.p50(), snapshot.p99()
         );
-        return results[results.length / 2];
+        return results[results.length / 2]; // median
     }
 
-    static void main() throws InterruptedException {
+    public static void measureSeries(String variant, Supplier<MetricsCollector> collectorFactory,
+                                     int... threadCounts) throws InterruptedException {
         int[] values = generateValues();
-        SingleThreadCollector collector = new SingleThreadCollector();
-        double baseline = measurePoint(collector, values, 1);
-        System.out.printf("stage 0 baseline: %.2f million ops/s%n", baseline / 1_000_000);
+        int availableProcessors = Runtime.getRuntime().availableProcessors();
+        for (int threadCount : threadCounts) {
+            if (threadCount > availableProcessors) {
+                continue;
+            }
+
+            MetricsCollector collector = collectorFactory.get();
+            double throughput = measurePoint(collector, values, threadCount);
+            System.out.printf("result,%s,%d,%.6f%n", variant, threadCount, throughput / 1_000_000);
+        }
     }
 }
