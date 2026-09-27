@@ -1,0 +1,9 @@
+collector,threads,million_ops_per_second
+synchronized,1,255.805702
+synchronized,2,62.620771
+synchronized,4,65.814820
+synchronized,8,68.981261
+empty,1,268.875476
+empty,2,102.462948
+empty,4,63.949716
+empty,8,93.789535
