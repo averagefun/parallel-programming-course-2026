@@ -1,6 +1,9 @@
 import csv
-import matplotlib.pyplot as plt
+import matplotlib
 from pathlib import Path
+
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 
 directory = Path(__file__).resolve().parent
 with (directory / "stage1.csv").open() as source:
@@ -16,7 +19,7 @@ for collector, label in (("synchronized", "Общий лок"), ("empty", "Пу�
     )
 
 plt.xticks(sorted({int(row["threads"]) for row in results}))
-plt.title("Этап 1: mutex")
+plt.title("Этап 1: лок")
 plt.xlabel("Число потоков")
 plt.ylabel("record(), млн/с")
 plt.grid(axis="y")

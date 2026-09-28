@@ -1,6 +1,9 @@
 import csv
-import matplotlib.pyplot as plt
+import matplotlib
 from pathlib import Path
+
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 
 directory = Path(__file__).resolve().parent
 with (directory / "stage0.csv").open() as source:

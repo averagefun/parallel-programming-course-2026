@@ -1,0 +1,5 @@
+collector,threads,million_ops_per_second
+striped,1,235.884634
+striped,2,16.199277
+striped,4,11.788287
+striped,8,6.732177
