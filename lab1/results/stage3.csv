@@ -1,0 +1,6 @@
+collector,threads,million_ops_per_second
+thread_local,1,179.197047
+thread_local,2,737.347134
+thread_local,4,1425.527612
+thread_local,8,2683.915395
+thread_local,14,2940.574586
