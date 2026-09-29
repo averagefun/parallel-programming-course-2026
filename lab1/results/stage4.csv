@@ -1,0 +1,6 @@
+collector,threads,million_ops_per_second
+double_buffered,1,207.774585
+double_buffered,2,522.140367
+double_buffered,4,1026.475009
+double_buffered,8,1917.027613
+double_buffered,14,2270.389096
