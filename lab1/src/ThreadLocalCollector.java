@@ -62,9 +62,9 @@ public final class ThreadLocalCollector implements MetricsCollector {
         }
 
         return new Snapshot(
-            buckets, count, sum, min, max,
-            percentile(buckets, count, 50),
-            percentile(buckets, count, 99)
+                buckets, count, sum, min, max,
+                percentile(buckets, count, 50),
+                percentile(buckets, count, 99)
         );
     }
 
