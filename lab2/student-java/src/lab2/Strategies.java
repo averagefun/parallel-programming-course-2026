@@ -50,7 +50,9 @@ public final class Strategies {
      *  bound — максимум вытеснений (этап 5); для dfs runner передаёт Integer.MAX_VALUE. */
     public static final class Dfs implements Strategy {
         private final List<Fork> path = new ArrayList<>();
+        private final int bound;
         private int depth;
+        private int used;
 
         private static final class Fork {
             final List<Integer> picks;
@@ -59,15 +61,30 @@ public final class Strategies {
             Fork(List<Integer> picks) { this.picks = List.copyOf(picks); }
         }
 
-        public Dfs(int bound) { }
+        public Dfs(int bound) {
+            if (bound < 0) throw new IllegalArgumentException("bad bound");
+            this.bound = bound;
+        }
 
         /** Подготовиться к новому прогону (позиция в пути, счётчик вытеснений). */
-        public void beginRun() { depth = 0; }
+        public void beginRun() {
+            depth = 0;
+            used = 0;
+        }
 
         public int pick(List<Integer> enabled, int last) {
-            if (depth == path.size()) path.add(new Fork(enabled));
+            boolean free = !enabled.contains(last);
+            if (depth == path.size()) {
+                List<Integer> picks = new ArrayList<>();
+                for (int next : enabled) {
+                    if (free || next == last || used < bound) picks.add(next);
+                }
+                path.add(new Fork(picks));
+            }
             Fork fork = path.get(depth++);
-            return fork.picks.get(fork.at);
+            int next = fork.picks.get(fork.at);
+            if (!free && next != last) used++;
+            return next;
         }
 
         /** Выбрать следующий путь; false — дерево обойдено. */
