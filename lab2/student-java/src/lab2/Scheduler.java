@@ -2,6 +2,7 @@ package lab2;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringJoiner;
 import java.util.concurrent.Semaphore;
 import java.util.function.BooleanSupplier;
 
@@ -18,6 +19,7 @@ public final class Scheduler {
 
     private static final ThreadLocal<Worker> SELF = new ThreadLocal<>();
     private final List<Worker> crew = new ArrayList<>();
+    final List<SchedLock> locks = new ArrayList<>();
     private final Semaphore reply = new Semaphore(0);
     private final StringBuilder path = new StringBuilder();
     private boolean started;
@@ -95,7 +97,12 @@ public final class Scheduler {
                 }
                 if (!alive) break;
                 if (enabled.isEmpty()) {
-                    throw new IllegalStateException("everyone waits");
+                    StringJoiner held = new StringJoiner(", ", "held={", "}");
+                    for (SchedLock lock : locks) {
+                        if (lock.owner >= 0) held.add(lock.name + ":" + (char) ('A' + lock.owner));
+                    }
+                    deadlock = held.toString();
+                    break;
                 }
                 int next = strategy.pick(enabled, last);
                 if (!enabled.contains(next)) {
@@ -144,9 +151,29 @@ public final class Scheduler {
         pal.used = true;
     }
 
+    static void beforeAccess(BooleanSupplier ready) {
+        Worker pal = current();
+        if (pal.used || !ready.getAsBoolean()) {
+            pal.ready = ready;
+            pal.pause();
+            pal.ready = null;
+        }
+        pal.used = true;
+    }
+
+    int workerId() {
+        Worker pal = current();
+        if (pal.host != this) throw new IllegalStateException("wrong scheduler");
+        return pal.id;
+    }
+
+    boolean stopped() {
+        return stop;
+    }
+
     static void logOperation(String op) {
         Worker pal = current();
-        if (pal.host.logging) {
+        if (!pal.host.stop && pal.host.logging) {
             pal.host.log.add((char) ('A' + pal.id) + "  " + op);
         }
     }
@@ -164,13 +191,7 @@ public final class Scheduler {
 
     /** Ждать, пока cond не станет true. До этого поток не попадает в enabled. */
     public static void await(BooleanSupplier cond) {
-        Worker pal = current();
-        if (pal.used || !cond.getAsBoolean()) {
-            pal.ready = cond;
-            pal.pause();
-            pal.ready = null;
-        }
-        pal.used = true;
+        beforeAccess(cond);
         logOperation("await done");
     }
 }
