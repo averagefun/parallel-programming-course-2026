@@ -641,7 +641,7 @@ mode=volatile samples=2,000,000
 - Операционная система и версия ядра: macOS 26, Darwin 25
 - Версия компилятора / JDK: Amazon Corretto 27
 - (C++) Предупреждений TSan на командах этапов 2 и 4: Java
-- Этапы 1–2: вывод `withdraw-v0 first`, `withdraw-v1 first`, `transfer replay AB` совпал с методичкой (да / нет): `...`
+- Этапы 1–2: вывод `withdraw-v0 first`, `withdraw-v1 first`, `transfer replay AB` совпал с методичкой (да / нет): да
 
 ### 2. Результаты этапов 0–5
 
