@@ -1,5 +1,6 @@
 package lab2;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -48,18 +49,36 @@ public final class Strategies {
     /** Stateless DFS по дереву выборов: каждый прогон с нуля, повторяет префикс прошлого и берёт следующий вариант.
      *  bound — максимум вытеснений (этап 5); для dfs runner передаёт Integer.MAX_VALUE. */
     public static final class Dfs implements Strategy {
+        private final List<Fork> path = new ArrayList<>();
+        private int depth;
+
+        private static final class Fork {
+            final List<Integer> picks;
+            int at;
+
+            Fork(List<Integer> picks) { this.picks = List.copyOf(picks); }
+        }
+
         public Dfs(int bound) { }
 
         /** Подготовиться к новому прогону (позиция в пути, счётчик вытеснений). */
-        public void beginRun() { }
+        public void beginRun() { depth = 0; }
 
         public int pick(List<Integer> enabled, int last) {
-            throw new UnsupportedOperationException("TODO этап 4: Dfs.pick");
+            if (depth == path.size()) path.add(new Fork(enabled));
+            Fork fork = path.get(depth++);
+            return fork.picks.get(fork.at);
         }
 
         /** Выбрать следующий путь; false — дерево обойдено. */
         public boolean endRun() {
-            throw new UnsupportedOperationException("TODO этап 4: Dfs.endRun");
+            path.subList(depth, path.size()).clear();
+            while (!path.isEmpty()) {
+                Fork fork = path.getLast();
+                if (++fork.at < fork.picks.size()) return true;
+                path.removeLast();
+            }
+            return false;
         }
     }
 }
